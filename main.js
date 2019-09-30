@@ -9,7 +9,13 @@ var app = http.createServer(function(request,response){
 
     if (pathname === '/') {
       if(queryData.id === undefined) {
-        fs.readFile(`data/${queryData.id}`, 'utf-8', function(err, description) {
+        // 홈화면
+        fs.readdir('data', function(err, files) {
+          var list = '<ul>';
+          for (var i = 0; i < files.length; i++) {
+            list += `<li><a href='/?id=${files[i]}'>${files[i]}</a></li>`;
+          }
+          list += '</ul>';
           var title = 'Welcome';
           var description = 'Hello Node.js';
           var template = `
@@ -21,11 +27,7 @@ var app = http.createServer(function(request,response){
         </head>
         <body>
           <h1><a href="/">Web</a></h1>
-          <ol>
-            <li><a href="/?id=HTML">HTML</a></li>
-            <li><a href="/?id=CSS">CSS</a></li>
-            <li><a href="/?id=JavaScript">JavaScript</a></li>
-          </ol>
+          ${list}
           <h2>${title}</h2>
           <p>
           ${description}
@@ -38,30 +40,33 @@ var app = http.createServer(function(request,response){
         });
       } else {
         fs.readFile(`data/${queryData.id}`, 'utf-8', function(err, description) {
-          var title = queryData.id;
-          var template = `
-        <!doctype html>
-        <html>
-        <head>
-          <title>WEB1 - ${title}</title>
-          <meta charset="utf-8">
-        </head>
-        <body>
-          <h1><a href="/">Web</a></h1>
-          <ol>
-            <li><a href="/?id=HTML">HTML</a></li>
-            <li><a href="/?id=CSS">CSS</a></li>
-            <li><a href="/?id=JavaScript">JavaScript</a></li>
-          </ol>
-          <h2>${title}</h2>
-          <p>
-          ${description}
-          </p>
-        </body>
-        </html>
-        `;
-        response.writeHead(200);
-        response.end(template);
+          fs.readdir('data', function(err, files){
+            var list = '<ul>';
+            for (var i = 0; i < files.length; i++) {
+              list += `<li><a href='/?id=${files[i]}'>${files[i]}</a></li>`;
+            }
+            list += '</ul>';
+            var title = queryData.id;
+            var template = `
+          <!doctype html>
+          <html>
+          <head>
+            <title>WEB1 - ${title}</title>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            <h1><a href="/">Web</a></h1>
+            ${list}
+            <h2>${title}</h2>
+            <p>
+            ${description}
+            </p>
+          </body>
+          </html>
+          `;
+          response.writeHead(200);
+          response.end(template);
+          });
         });
       }
       
@@ -69,7 +74,5 @@ var app = http.createServer(function(request,response){
       response.writeHead(404);
       response.end('Not found');
     }
-    
- 
 });
 app.listen(3000);
